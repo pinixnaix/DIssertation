@@ -1,21 +1,16 @@
 # Import API libraries
 from ncclient import manager
+import xml.dom.minidom
 import xmltodict
 
 
 def display(data):
     for interface in data:
-        print("""Name: {}\nADMIN-STATUS: {}\nOPER-STATUS: {}\nSPEED: {}\nSTATISTICS:\n\tIN-OCTETS: {}
-    IN-UNICAST-PKTS: {}\n\tIN-BROADCAST-PKTS: {}\n\tIN-MULTICAST-PKTS: {}\n\tIN-DISCARDS: {}
-    IN-ERRORS: {}\n\tOUT-OCTETS: {}\n\tOUT-UNICAST-PKTS: {}\n\tOUT-BROADCAST-PKTS: {}
-    OUT-MULTICAST-PKYS: {}\n\tOUT-DISCARDS: {}\n\tOUT-ERRORS: {}\n""".format(
-            interface["name"], interface["admin-status"], interface["oper-status"], interface["speed"],
-            interface["statistics"]["in-octets"], interface["statistics"]["in-unicast-pkts"],
-            interface["statistics"]["in-broadcast-pkts"], interface["statistics"]["in-multicast-pkts"],
-            interface["statistics"]["in-discards"], interface["statistics"]["in-errors"],
-            interface["statistics"]["out-octets"], interface["statistics"]["out-unicast-pkts"],
-            interface["statistics"]["out-broadcast-pkts"], interface["statistics"]["out-multicast-pkts"],
-            interface["statistics"]["out-discards"], interface["statistics"]["out-errors"]))
+        print("""PID: {}\nNAME: {}\nTTY: {}\nTOTAL RUN TIME: {}\nINVOCATION COUNT: {}\nAVG RUN TIME: {}
+FIVE SECONDS: {}\nONE MINUTE: {}\nFIVE MINUTES: {}\n""".format(
+            interface["pid"], interface["name"], interface["tty"], interface["total-run-time"],
+            interface["invocation-count"], interface["avg-run-time"],interface["five-seconds"],
+            interface["one-minute"], interface["five-minutes"]))
 
 
 def run():
@@ -33,18 +28,19 @@ def run():
         #config = m.get_config(source="running")
         #print(config)
 
-        interfaces_status = """
+        cpu_usage = """
          <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-           <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
+                <cpu-usage xmlns="http://cisco.com/ns/yang/Cisco-IOS-XE-process-cpu-oper"/>
          </filter>
          
         """
 
-        netconf_reply = m.get(filter=interfaces_status).xml
+        netconf_reply = m.get(filter=cpu_usage).xml
+        #print(xml.dom.minidom.parseString(netconf_reply).toprettyxml())
 
-        interfaces = xmltodict.parse(netconf_reply)["rpc-reply"]["data"]["interfaces-state"]["interface"]
+        cpu = xmltodict.parse(netconf_reply)["rpc-reply"]["data"]["cpu-usage"]["cpu-utilization"]["cpu-usage-processes"]["cpu-usage-process"]
 
-        display(interfaces)
+        display(cpu)
 
 
 if __name__ == "__main__":
