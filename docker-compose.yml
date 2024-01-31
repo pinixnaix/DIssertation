@@ -1,0 +1,9 @@
+version: "3.9"
+services:
+    telegraf:
+        build:
+            context: .
+            dockerfile: Dockerfile-telegraf
+        ports:
+            - "9273:9273"
+    
