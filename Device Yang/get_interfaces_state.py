@@ -4,6 +4,7 @@ import xmltodict
 
 
 def display(data):
+
     for interface in data:
         print("""Name: {}\nADMIN-STATUS: {}\nOPER-STATUS: {}\nSPEED: {}\nSTATISTICS:\n\tIN-OCTETS: {}
     IN-UNICAST-PKTS: {}\n\tIN-BROADCAST-PKTS: {}\n\tIN-MULTICAST-PKTS: {}\n\tIN-DISCARDS: {}
