@@ -5,7 +5,7 @@ RUN mkdir /opt/monitoring/
 RUN mkdir /opt/monitoring/prometheus
 
 
-COPY ./prometheus/prometheus.yml /opt/monitoring/prometheus/
-RUN chmod +x /opt/monitoring/prometheus/prometheus.yml
+COPY ./prometheus/* /opt/monitoring/prometheus/
+RUN chmod +x /opt/monitoring/prometheus/*
 
-CMD ["/opt/monitoring/prometheus/prometheus", "--config.file=/opt/monitoring/prometheus/prometheus.yml"]
+CMD ["/opt/monitoring/prometheus/prometheus", "--config.file=/opt/monitoring/prometheus/prometheus-config.yml"]
