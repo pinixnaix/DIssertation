@@ -1,4 +1,5 @@
 version: "3.9"
+
 services:
     telegraf:
         build:
@@ -6,4 +7,12 @@ services:
             dockerfile: Dockerfile-telegraf
         ports:
             - "9273:9273"
-    
+            
+    prometheus:
+        build:
+            context: .
+            dockerfile: Dockerfile-prometheus
+        ports:
+            - "9090:9090"
+        depends_on:
+            - "telegraf"
