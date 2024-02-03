@@ -10,3 +10,4 @@ RUN dpkg -i telegraf_1.19.0-1_amd64.deb
 
 
 RUN pip3 install ncclient xmltodict
+CMD ["telegraf", "--config-directory", "/etc/telegraf/telegraf.d"]
