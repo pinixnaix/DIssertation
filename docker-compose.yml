@@ -3,6 +3,9 @@ version: "3.9"
 volumes:
   grafana_data: {}
   influxdb_data: {}
+networks:
+  network:
+    driver: bridge
 
 services:
       telegraf:
@@ -13,12 +16,15 @@ services:
         volumes:
           - ./telegraf/telegraf-config/:/etc/telegraf/telegraf.d:ro
           - ./Devices-Python/:/python-files/
+          - /var/run/docker.sock:/var/run/docker.sock
         depends_on:
           - influxdb
         links:
           - influxdb
         ports:
           - "9090:9090"
+        networks:
+          - network
         
       influxdb:
         image: influxdb:latest
@@ -28,6 +34,9 @@ services:
         volumes:
           - ./:/imports
           - influxdb_data:/var/lib/influxdb:rw
+        restart: unless-stopped
+        networks:
+          - network
 
       grafana:
         image: grafana/grafana:8.0.2
@@ -42,3 +51,6 @@ services:
           - grafana_data:/var/lib/grafana
           - ./grafana/provisioning/:/etc/grafana/provisioning/
           - ./grafana/dashboards/:/var/lib/grafana/dashboards/
+        restart: unless-stopped
+        networks:
+          - network
