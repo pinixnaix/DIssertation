@@ -1,18 +1,44 @@
 version: "3.9"
 
+volumes:
+  grafana_data: {}
+  influxdb_data: {}
+
 services:
-    telegraf:
-        build:
-            context: .
-            dockerfile: Dockerfile-telegraf
-        ports:
-            - "9273:9273"
-            
-    prometheus:
-        build:
-            context: .
-            dockerfile: Dockerfile-prometheus
-        ports:
-            - "9090:9090"
+      telegraf:
+        container_name: telegraf
+        build: ./telegraf/.
+        restart: unless-stopped
+        env_file: configuration.env
+        volumes:
+          - ./telegraf/telegraf-config/:/etc/telegraf/telegraf.d:ro
+          - ./Devices-Python/:/python-files/
         depends_on:
-            - "telegraf"
+          - influxdb
+        links:
+          - influxdb
+        ports:
+          - "127.0.0.1:9090:9090"
+        
+      influxdb:
+        image: influxdb:latest
+        env_file: configuration.env
+        ports:
+          - "127.0.0.1:8086:8086"
+        volumes:
+          - ./:/imports
+          - influxdb_data:/var/lib/influxdb:rw
+
+      grafana:
+        image: grafana/grafana:8.0.2
+        depends_on:
+          - influxdb
+        env_file: configuration.env
+        links:
+          - influxdb
+        ports:
+          - '127.0.0.1:3000:3000'
+        volumes:
+          - grafana_data:/var/lib/grafana
+          - ./grafana/provisioning/:/etc/grafana/provisioning/
+          - ./grafana/dashboards/:/var/lib/grafana/dashboards/
