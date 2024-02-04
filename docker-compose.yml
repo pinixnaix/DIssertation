@@ -1,8 +1,8 @@
-version: "3.9"
+version: "3"
 
 volumes:
   grafana_data: {}
-  influxdb_data: {}
+  influxdb2_data: {}
 networks:
   network:
     driver: bridge
@@ -27,13 +27,12 @@ services:
           - network
         
       influxdb:
-        image: influxdb:latest
+        image: influxdb:2.6-alpine
         env_file: configuration.env
         ports:
           - "8086:8086"
         volumes:
-          - ./:/imports
-          - influxdb_data:/var/lib/influxdb:rw
+          - influxdb2_data:/var/lib/influxdb2:rw
         restart: unless-stopped
         networks:
           - network
