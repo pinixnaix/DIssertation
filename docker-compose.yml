@@ -1,8 +1,6 @@
 version: "3"
 
-volumes:
-  grafana_data: {}
-  influxdb2_data: {}
+
 networks:
   network:
     driver: bridge
@@ -27,15 +25,22 @@ services:
           - network
         
       influxdb:
-        image: influxdb:2.6-alpine
+        container_name: influxdb
+        image: influxdb:2.7.1-alpine
         env_file: configuration.env
         ports:
           - "8086:8086"
         volumes:
-          - influxdb2_data:/var/lib/influxdb2:rw
+          - ./influxdb/data:/var/lib/influxdb2
+          - ./influxdb/config:/etc/influxdb2
         restart: unless-stopped
         networks:
           - network
+        healthcheck:
+          test: "curl -f http://localhost:8086/ping"
+          interval: 5s
+          timeout: 10s
+          retries: 5
 
       grafana:
         image: grafana/grafana:8.0.2
@@ -47,7 +52,6 @@ services:
         ports:
           - '3000:3000'
         volumes:
-          - grafana_data:/var/lib/grafana
           - ./grafana/provisioning/:/etc/grafana/provisioning/
           - ./grafana/dashboards/:/var/lib/grafana/dashboards/
         restart: unless-stopped
