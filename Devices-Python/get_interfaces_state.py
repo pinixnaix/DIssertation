@@ -1,22 +1,36 @@
 # Import API libraries
 from ncclient import manager
 import xmltodict
-
+import json
 
 def display(data):
 
+    interface_stats = []
     for interface in data:
-        print("""Name: {}\nADMIN-STATUS: {}\nOPER-STATUS: {}\nSPEED: {}\nSTATISTICS:\n\tIN-OCTETS: {}
-    IN-UNICAST-PKTS: {}\n\tIN-BROADCAST-PKTS: {}\n\tIN-MULTICAST-PKTS: {}\n\tIN-DISCARDS: {}
-    IN-ERRORS: {}\n\tOUT-OCTETS: {}\n\tOUT-UNICAST-PKTS: {}\n\tOUT-BROADCAST-PKTS: {}
-    OUT-MULTICAST-PKYS: {}\n\tOUT-DISCARDS: {}\n\tOUT-ERRORS: {}\n""".format(
-            interface["name"], interface["admin-status"], interface["oper-status"], interface["speed"],
-            interface["statistics"]["in-octets"], interface["statistics"]["in-unicast-pkts"],
-            interface["statistics"]["in-broadcast-pkts"], interface["statistics"]["in-multicast-pkts"],
-            interface["statistics"]["in-discards"], interface["statistics"]["in-errors"],
-            interface["statistics"]["out-octets"], interface["statistics"]["out-unicast-pkts"],
-            interface["statistics"]["out-broadcast-pkts"], interface["statistics"]["out-multicast-pkts"],
-            interface["statistics"]["out-discards"], interface["statistics"]["out-errors"]))
+        stats = {}
+        interface_name = interface["name"].replace(" ", "_")
+        stats = {
+            "admin_status": 1 if interface["admin-status"]=="up" else 0,
+            "operational_status": 1 if interface["oper-status"] == "up" else 0,
+            "speed": int(interface["speed"]),
+            "in_errors": int(interface["statistics"]["in-errors"]),
+            "in_octets": int(interface["statistics"]["in-octets"]),
+            "in_unicast_pkts": int(interface["statistics"]["in-unicast-pkts"]),
+            "in_broadcast_pkts": int(interface["statistics"]["in-broadcast-pkts"]),
+            "in_multicast_pkts": int(interface["statistics"]["in-multicast-pkts"]),
+            "in_discards": int(interface["statistics"]["in-discards"]),
+            "out_errors": int(interface["statistics"]["out-errors"]),
+            "out_octets": int(interface["statistics"]["out-octets"]),
+            "out_unicast_pkts": int(interface["statistics"]["out-unicast-pkts"]),
+            "out_broadcast_pkts": int(interface["statistics"]["out-broadcast-pkts"]),
+            "out_multicast_pkts": int(interface["statistics"]["out-multicast-pkts"]),
+            "out_discards": int(interface["statistics"]["out-discards"]),
+            "name": interface_name,
+            "field": "interface_stats"
+        }
+
+        interface_stats.append(stats)
+    return json.dumps(interface_stats)
 
 
 def run():
@@ -38,7 +52,7 @@ def run():
 
         interfaces = xmltodict.parse(netconf_reply)["rpc-reply"]["data"]["interfaces-state"]["interface"]
 
-        display(interfaces)
+        print(display(interfaces))
 
 
 if __name__ == "__main__":
