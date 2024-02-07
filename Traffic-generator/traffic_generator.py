@@ -6,9 +6,9 @@ from scapy.all import *
 
 def generate_icmp_traffic(destination_ips, interval=1):
     
-    for destination_ip in destination_ips:
+   # for destination_ip in destination_ips:
         # Generate ICMP packet
-        packet_icmp = IP(dst=destination_ip) / ICMP()
+        packet_icmp = IP(dst=destination_ips) / ICMP()
 
         # Send the packet
         send(packet_icmp)
@@ -19,12 +19,12 @@ def generate_icmp_traffic(destination_ips, interval=1):
 
 def generate_tcp_traffic(destination_ips, interval=1, src_port=None, dst_port=None):
    
-    for destination_ip in destination_ips:
+  #  for destination_ip in destination_ips:
         # Generate TCP packet with random payload size
         payload_size = random.randint(1, 100)  # Adjust the range as needed
         payload = bytes([random.randint(0, 255) for _ in range(payload_size)])
 
-        packet_tcp = IP(dst=destination_ip) / TCP(dport=dst_port, sport=src_port) / Raw(load=payload)
+        packet_tcp = IP(dst=destination_ips) / TCP(dport=dst_port, sport=src_port) / Raw(load=payload)
 
         # Send the packet
         send(packet_tcp)
@@ -35,12 +35,12 @@ def generate_tcp_traffic(destination_ips, interval=1, src_port=None, dst_port=No
 
 def generate_udp_traffic(destination_ips, interval=1, src_port=None, dst_port=None):
 
-    for destination_ip in destination_ips:
+   # for destination_ip in destination_ips:
         # Generate UDP packet with random payload size
         payload_size = random.randint(1, 100)  # Adjust the range as needed
         payload = bytes([random.randint(0, 255) for _ in range(payload_size)])
 
-        packet_udp = IP(dst=destination_ip) / UDP(dport=dst_port, sport=src_port) / Raw(load=payload)
+        packet_udp = IP(dst=destination_ips) / UDP(dport=dst_port, sport=src_port) / Raw(load=payload)
 
         # Send the packet
         send(packet_udp)
@@ -52,9 +52,8 @@ def generate_udp_traffic(destination_ips, interval=1, src_port=None, dst_port=No
 def run():
     
     # Read destination IPs from environment variable
-    destination_ips_str = "devnetsandboxiosxe.cisco.com"
+    destination_ips= os.environ.get("DESTINATION_IPS")
 
-    destination_ips = destination_ips_str.split(',')
 
     # Set the interval between packets in seconds
     packet_interval = 1
