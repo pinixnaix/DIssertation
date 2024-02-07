@@ -13,7 +13,7 @@ LOWEST-USAGE: {} bytes\nHIGHEST-USAGE: {} bytes\n""".format(
 
 def run():
     with manager.connect(
-        host="sandbox-iosxe-latest-1.cisco.com",
+        host="devnetsandboxiosxe.cisco.com",
         port=830,
         username="admin",
         password="C1sco12345",
