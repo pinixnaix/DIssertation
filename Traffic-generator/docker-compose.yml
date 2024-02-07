@@ -4,7 +4,7 @@ services:
     build:
       context: .
     volumes:
-      - ./traffic_generator.py:/app/traffic_generator.py
+      - /Traffic-generator/traffic_generator.py :/app/traffic_generator.py
     environment:
       - DESTINATION_IP= "devnetsandboxiosxe.cisco.com"
     command: ["python", "traffic_generator.py"]
