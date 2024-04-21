@@ -44,28 +44,24 @@ def display(stats):
 
 
 def get_interface_statistics():
-    try:
-        # Connect to the router using NETCONF
-        with manager.connect(host=router_ip,
-                             port=router_port,
-                             username=router_username,
-                             password=router_password,
-                             hostkey_verify=False) as m:
-            # XML filter to retrieve interface statistics
-            filter = '''
-                <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-                    <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
-                </filter>
-            '''
+    # Connect to the router using NETCONF
+    with manager.connect(host=router_ip,
+                         port=router_port,
+                         username=router_username,
+                         password=router_password,
+                         hostkey_verify=False) as m:
+        # XML filter to retrieve interface statistics
+        filter = '''
+            <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+                <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
+            </filter>
+        '''
 
-            # Send NETCONF <get> operation with the filter
-            response = m.get(filter)
+        # Send NETCONF <get> operation with the filter
+        response = m.get(filter)
 
-            # Parse the XML response and send to display
-            print(display(ET.fromstring(response.data_xml)))
-
-    except Exception as e:
-        print("Error:", e)
+        # Parse the XML response and send to display
+        print(display(ET.fromstring(response.data_xml)))
 
 
 if __name__ == "__main__":
