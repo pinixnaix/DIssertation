@@ -9,5 +9,5 @@ RUN wget https://dl.influxdata.com/telegraf/releases/telegraf_1.29.4-1_amd64.deb
 RUN dpkg -i telegraf_1.29.4-1_amd64.deb
 
 
-RUN pip3 install ncclient xmltodict
+RUN pip3 install ncclient xmltodict xml.etree
 CMD ["telegraf", "--config-directory", "/etc/telegraf/telegraf.d"]
