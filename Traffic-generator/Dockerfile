@@ -1,7 +1,10 @@
 FROM python:latest
 
-WORKDIR /app
+LABEL Maintainer="pinixnaix"
+
+WORKDIR /usr/app/src
+COPY traffic_generator.py ./
 
 RUN pip install scapy
 
-CMD ["python", "traffic_generator.py"]
+CMD ["python", "./traffic_generator.py"]
