@@ -39,6 +39,17 @@ class Router:
         except Exception as e:
             print("Error:", e)
 
+    def edit_interface(self, config):
+        try:
+            with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
+                                 hostkey_verify=False) as m:
+
+                response = m.edit_config(target="running", config=config)
+
+            return response
+        except Exception as e:
+            print("Error:", e)
+
     def rollback_configuration(self, config):
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,

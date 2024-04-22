@@ -11,9 +11,15 @@ def run():
             hostkey_verify=False
     ) as m:
         interfaces_status = """
-                 <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-                    <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
-                 </filter>
+                   <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+             <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
+                        <interface>
+                            <name>GigabitEthernet2</name>
+                            <admin-status></admin-status>
+				            <oper-status></oper-status>
+                        </interface>
+                    </interfaces-state>
+         </filter>
                  """
         netconf_reply = m.get(filter=interfaces_status)
 
