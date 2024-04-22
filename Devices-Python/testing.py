@@ -2,8 +2,6 @@ from router_manager import Router
 import time
 
 interval = 15
-
-
 # Function to build a query
 def make_query(host, bucket, interface):
     # Query for the router interface stats from InfluxDB
@@ -48,9 +46,8 @@ def main():
     interface_data = router.get_interface_stats_from_influxdb(query)
     current_stats = [interface_data[0].records[0].get_value(), interface_data[1].records[0].get_value()]
     stats.append(current_stats)
-    result = calculate_bandwidth(stats)
-    print(f"Interface: GigabitEthernet1, In Bandwidth: {result[0]} Bps, Out Bandwidth: {result[1]} Bps")
-
+    result = c
+    print(f"Interface: GigabitEthernet1, In Bandwidth: {in_bandwidth} Bps, Out Bandwidth: {out_bandwidth} Bps")
 
 # Execute the main function
 if __name__ == "__main__":

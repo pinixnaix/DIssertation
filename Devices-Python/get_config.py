@@ -11,7 +11,12 @@ def run():
             password="C1sco12345",
             hostkey_verify=False
     ) as m:
-        config = m.get_config(source="running").data_xml
+        filter = '''
+                        <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+                            <acl xmlns="http://openconfig.net/yang/acl"/>
+                        </filter>
+                    '''
+        config = m.get(filter).data_xml
         print(xml.dom.minidom.parseString(config).toprettyxml())
 
 
