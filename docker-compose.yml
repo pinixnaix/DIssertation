@@ -6,24 +6,6 @@ networks:
     driver: bridge
 
 services:
-      telegraf:
-        container_name: telegraf
-        build: ./telegraf/.
-        restart: unless-stopped
-        env_file: configuration.env
-        volumes:
-          - ./telegraf/telegraf-config/:/etc/telegraf/telegraf.d:ro
-          - ./Devices-Python/:/python-files/
-          - /var/run/docker.sock:/var/run/docker.sock
-        depends_on:
-          - influxdb
-        links:
-          - influxdb
-        ports:
-          - "9090:9090"
-        networks:
-          - network
-        
       influxdb:
         container_name: influxdb
         image: influxdb:2.7.1-alpine
@@ -46,11 +28,10 @@ services:
         image: grafana/grafana:8.0.2
         depends_on:
           - influxdb
-        env_file: configuration.env
         links:
           - influxdb
         ports:
-          - '3000:3000'
+          - '9090:9090'
         volumes:
           - ./grafana/provisioning/:/etc/grafana/provisioning/
           - ./grafana/dashboards/:/var/lib/grafana/dashboards/

@@ -15,7 +15,7 @@ def run():
              <interfaces xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
                         <interface>
                             <name>GigabitEthernet2</name>
-                            
+                            <admin-status>down</admin-status>
                         </interface>
                     </interfaces>
          </config>

@@ -1,84 +1,59 @@
-from ncclient import manager
-from xml.etree import ElementTree as ET
+from router_manager import Router
 import time
 
-# Define router connection parameters
-router_ip = '10.10.20.48'
-router_port = 830
-router_username = 'developer'
-router_password = 'C1sco12345'
-
-# Define time interval for bandwidth calculation (in seconds)
-interval = 60
+interval = 15
 
 
-def calculate_bandwidth(previous_stats, current_stats, interval):
+# Function to build a query
+def make_query(host, bucket, interface):
+    # Query for the router interface stats from InfluxDB
+    query = f'''
+              last_in_octets = from(bucket: "{bucket}")
+      |> range(start: -10s)
+      |> filter(fn: (r) => r["_measurement"] == "interface_stats")
+      |> filter(fn: (r) => r["host"] == "{host}")
+      |> filter(fn: (r) => r["name"] == "{interface}")
+      |> filter(fn: (r) => r["_field"] == "in_octets" or r["_field"] == "out_octets")
+      |> yield(name: "last")
+          '''
+    return query
+
+
+def calculate_bandwidth(stats):
     # Calculate difference in octets for inbound and outbound traffic
-    in_octets_diff = int(current_stats['in_octets']) - int(previous_stats['in_octets'])
-    out_octets_diff = int(current_stats['out_octets']) - int(previous_stats['out_octets'])
+    in_octets_diff = int(stats[1][0]) - int(stats[0][0])
+    out_octets_diff = int(stats[1][1]) - int(stats[0][1])
 
     # Calculate bandwidth utilization in bytes per second (Bps)
     in_bandwidth = in_octets_diff / interval
     out_bandwidth = out_octets_diff / interval
 
-    return round(in_bandwidth, 2), round(out_bandwidth, 2)
+    return [round(in_bandwidth, 2), round(out_bandwidth, 2)]
 
 
-def get_interface_statistics():
-    try:
-        # Connect to the router using NETCONF
-        with manager.connect(host=router_ip, port=router_port, username=router_username, password=router_password,
-                             hostkey_verify=False) as m:
-            # XML filter to retrieve interface statistics
-            filter = '''
-                <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-                    <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces">
-                        <interface>
-                            <name></name>
-                            <statistics>
-                                <in-octets/>
-                                <out-octets/>
-                            </statistics>
-                        </interface>
-                    </interfaces-state>
-                </filter>
-            '''
+# Main function
+def main():
+    #
+    stats = []
+    router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
+                    "B9ECClKQ2hbGsWnGH96M9a_wlMSzuRlrMBLBSmwiI3_85YkjP--0utdoIAE_fItt14sZK6j7dIBgj7tvo4RUMQ==",
+                    "my-org", "network")
 
-            # Send NETCONF <get> operation with the filter
-            response = m.get(filter)
-
-            # Parse the XML response
-            root = ET.fromstring(response.data_xml)
-
-            # Store interface statistics in a dictionary
-            interface_stats = {}
-            for interface in root.findall('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}interface'):
-                name = interface.find('{urn:ietf:params:xml:ns:yang:ietf-interfaces}name').text
-                in_octets = interface.find('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}in-octets').text
-                out_octets = interface.find('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}out-octets').text
-                interface_stats[name] = {'in_octets': in_octets, 'out_octets': out_octets}
-
-            # Wait for the specified interval
-            time.sleep(interval)
-
-            # Retrieve interface statistics again after the interval
-            response = m.get(filter)
-            root = ET.fromstring(response.data_xml)
-
-            # Calculate bandwidth for each interface
-            for interface in root.findall('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}interface'):
-                name = interface.find('{urn:ietf:params:xml:ns:yang:ietf-interfaces}name').text
-                current_stats = {
-                    'in_octets': interface.find('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}in-octets').text,
-                    'out_octets': interface.find('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}out-octets').text}
-                previous_stats = interface_stats.get(name, None)
-                if previous_stats:
-                    in_bandwidth, out_bandwidth = calculate_bandwidth(previous_stats, current_stats, interval)
-                    print(f"Interface: {name}, In Bandwidth: {in_bandwidth} Bps, Out Bandwidth: {out_bandwidth} Bps")
-
-    except Exception as e:
-        print("Error:", e)
+    # Builds and makes a Query for the interface stats data from InfluxDB
+    query = make_query("10.10.20.48", "network", "GigabitEthernet1")
+    interface_data = router.get_interface_stats_from_influxdb(query)
+    previous_stats = [interface_data[0].records[0].get_value(), interface_data[1].records[0].get_value()]
+    stats.append(previous_stats)
+    time.sleep(interval)
+    interface_data = router.get_interface_stats_from_influxdb(query)
+    current_stats = [interface_data[0].records[0].get_value(), interface_data[1].records[0].get_value()]
+    stats.append(current_stats)
+    result = calculate_bandwidth(stats)
+    print(f"Interface: GigabitEthernet1, In Bandwidth: {result[0]} Bps, Out Bandwidth: {result[1]} Bps")
 
 
-# Execute the function to retrieve and calculate interface bandwidth
-get_interface_statistics()
+# Execute the main function
+if __name__ == "__main__":
+
+    main()
+

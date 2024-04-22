@@ -1,4 +1,3 @@
-import xmltodict
 from ncclient import manager
 import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
@@ -25,6 +24,21 @@ class Router:
         except Exception as e:
             print("Error:", e)
 
+    def get_interface_stats(self):
+        try:
+            with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
+                                 hostkey_verify=False) as m:
+                data = '''
+                            <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+                                <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
+                            </filter>
+                        '''
+                response = m.get(data)
+                print("Router interface statistics retrieved successfully.")
+            return response
+        except Exception as e:
+            print("Error:", e)
+
     def rollback_configuration(self, config):
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
@@ -34,13 +48,21 @@ class Router:
         except Exception as e:
             print("Error:", e)
 
-    def write_to_influxdb(self, config):
+    def write_to_influxdb(self, measurement, tag, data):
         try:
-            client = influxdb_client.InfluxDBClient(url=self.influxdb_url, token=self.influxdb_token, org=self.influxdb_org)
+            client = influxdb_client.InfluxDBClient(url=self.influxdb_url,
+                                                    token=self.influxdb_token,
+                                                    org=self.influxdb_org)
             write_api = client.write_api(write_options=SYNCHRONOUS)
-            point = influxdb_client.Point("router_config").tag("host", self.ip).field("config", config)
-            write_api.write(bucket=self.influxdb_bucket, org=self.influxdb_org, record=point)
-            print("Router configuration backup sent to InfluxDB successfully.")
+            for item in data:
+                point = influxdb_client.Point(measurement)
+                point.tag('host', self.ip)
+                point.tag(tag, item["name"])
+                for key, value in item["stats"].items():
+                    point.field(key, value)
+                write_api.write(bucket=self.influxdb_bucket, org=self.influxdb_org, record=point)
+            print(f"Router data sent to InfluxDB successfully.")
+            client.close()
         except Exception as e:
             print("Error:", e)
 
@@ -65,21 +87,12 @@ class Router:
         except Exception as e:
             print("Error:", e)
 
-    def get_interface_stats_from_influxdb(self):
+    def get_interface_stats_from_influxdb(self, query):
         try:
             client = influxdb_client.InfluxDBClient(url=self.influxdb_url, token=self.influxdb_token)
             query_api = client.query_api()
 
-            # Query the most recent router configuration from InfluxDB
-            query = f'''
-                    from(bucket: "{self.influxdb_bucket}")
-                      |> range(start: -5m)  # Retrieve data for the last 5 minutes
-                      |> filter(fn: (r) => r["_measurement"] == "interface_status")  # Filter by measurement name
-                      |> filter(fn: (r) => r["interface_name"] == "GigabitEthernet1")  # Filter by interface name
-                      |> filter(fn: (r) => r["_field"] == "admin_status" or r["_field"] == "oper_status")  # Filter by field name
-                      |> last()  # Retrieve the last value within the specified range
-                '''
-            # Execute the Flux query
+            # Execute the Flux query received
             result = query_api.query(query, org=self.influxdb_org)
 
             print("Router interface stats retrieved from database successfully.")
