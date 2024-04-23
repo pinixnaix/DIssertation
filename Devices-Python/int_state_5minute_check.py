@@ -27,7 +27,7 @@ def make_query(host, bucket, status, interface):
 def main():
     #
     router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
-                    "B9ECClKQ2hbGsWnGH96M9a_wlMSzuRlrMBLBSmwiI3_85YkjP--0utdoIAE_fItt14sZK6j7dIBgj7tvo4RUMQ==",
+                    "8HYXrEbdGmbFYXy6KILdvVrmZfEl6X_CoU_qUDW6nx-QeWMgK9R-jm2Q_fxj3Jx9IwL1NPTp5tDnmE1P3dhRkg==",
                     "my-org", "network")
 
     # Builds and makes a Query for the interface admin status data from InfluxDB

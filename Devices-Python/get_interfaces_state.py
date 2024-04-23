@@ -40,7 +40,7 @@ def parse(stats):
 def get_interface_statistics():
     try:
         router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
-                        "B9ECClKQ2hbGsWnGH96M9a_wlMSzuRlrMBLBSmwiI3_85YkjP--0utdoIAE_fItt14sZK6j7dIBgj7tvo4RUMQ==",
+                        "my-super-secret-auth-token",
                         "my-org", "network")
 
         # Send NETCONF <get> operation with the filter

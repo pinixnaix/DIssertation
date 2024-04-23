@@ -14,9 +14,9 @@ FIVE SECONDS: {}\nONE MINUTE: {}\nFIVE MINUTES: {}\n""".format(
 
 def run():
     with manager.connect(
-            host="devnetsandboxiosxe.cisco.com",
+            host="10.10.20.48",
             port=830,
-            username="admin",
+            username="developer",
             password="C1sco12345",
             hostkey_verify=False
     ) as m:
