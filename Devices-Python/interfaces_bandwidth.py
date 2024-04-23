@@ -48,6 +48,7 @@ def main():
     interface_data = router.get_interface_stats_from_influxdb(query)
     current_stats = [interface_data[0].records[0].get_value(), interface_data[1].records[0].get_value()]
     stats.append(current_stats)
+    print(stats)
     result = calculate_bandwidth(stats)
     print(f"Interface: GigabitEthernet1, In Bandwidth: {result[0]} Bps, Out Bandwidth: {result[1]} Bps")
 
