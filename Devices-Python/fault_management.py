@@ -2,6 +2,8 @@ from router_manager import Router
 import time
 from datetime import datetime, timedelta
 
+interval = 30
+
 
 def make_query():
     query = f'''
@@ -15,49 +17,65 @@ def make_query():
     return query
 
 
-def interface_utilisation(router, data):
-    result = []
-    for table in data:
+def traffic(router, new_data, old_data):
+    previous, result, recent, counter = [], [], [], 0
+    for table in old_data:
         for key in table.records:
-            name = key['name']
             in_octets = key['in_octets']
             out_octets = key['out_octets']
+            total = in_octets + out_octets
+            previous.append([in_octets, out_octets, total])
+    for table in new_data:
+        for key in table.records:
+            in_octets = key['in_octets']
+            out_octets = key['out_octets']
+            total = in_octets + out_octets
+            recent.append([in_octets, out_octets, total])
+    for table in old_data:
+        for key in table.records:
+            name = key['name']
             speed = key['speed']
-            stat = ((in_octets + out_octets)/speed)*100
+            stat = calculate_traffic([previous[counter], recent[counter]], speed)
             result.append({'name': name,
                            'stats': {
-                               'interface_utilisation': stat}})
+                               'in_traffic': stat[0],
+                               'out_traffic': stat[1],
+                               'traffic_volume': stat[2],
+                               'in_utilisation': stat[3],
+                               'out_utilisation': stat[4]}})
+            counter = counter + 1
+
     router.write_to_influxdb('fault_management_stats', 'name', result)
 
 
-def traffic_volume(router, data):
+def rate(router, data):
     result = []
+
     for table in data:
         for key in table.records:
+            total, total_errors, total_discards = 0, 0, 0
             name = key['name']
-            in_octets = key['in_octets']
-            out_octets = key['out_octets']
-            stat = in_octets + out_octets
-            result.append({'name': name,
-                           'stats': {
-                               'traffic_volume': stat}})
-    router.write_to_influxdb('fault_management_stats', 'name', result)
+            total_errors += key['in_errors']
+            total_errors += key['out_errors']
+            total_discards += key['in_discards']
+            total_discards += key['out_discards']
+            total += key['in_unicast_pkts']
+            total += key['out_unicast_pkts']
+            total += key['in_multicast_pkts']
+            total += key['out_multicast_pkts']
+            total += key['in_broadcast_pkts']
+            total += key['out_broadcast_pkts']
 
-
-def bit_error_rate(router, data):
-    result = []
-    for table in data:
-        for key in table.records:
-            name = key['name']
-            in_errors = key['in_errors']
-            out_octets = key['out_octets']
-            if in_errors >= 0.0 and out_octets > 0.0:
-                bir = (in_errors / out_octets) * 100.0
+            if total == 0:
+                error_rate = 0
+                discard_rate = 0
             else:
-                bir = 0.0
+                error_rate = (int(total_errors) / int(total)) * 100
+                discard_rate = (int(total_discards) / int(total)) * 100
             result.append({'name': name,
                            'stats': {
-                               'bit_error_rate': bir}})
+                               'error_rate': error_rate,
+                               'discard_rate': discard_rate}})
     router.write_to_influxdb('fault_management_stats', 'name', result)
 
 
@@ -90,47 +108,21 @@ def link_flap(router, data):
     router.write_to_influxdb('fault_management_stats', 'name', result)
 
 
-def calculate_bandwidth(stats):
-    # Calculate difference in octets for inbound and outbound traffic
+def calculate_traffic(stats, speed):
+    # Calculate difference in octets for inbound, outbound and total traffic
     in_octets_diff = int(stats[1][0]) - int(stats[0][0])
     out_octets_diff = int(stats[1][1]) - int(stats[0][1])
+    total = int(stats[1][2]) - int(stats[0][2])
 
-    # Calculate bandwidth utilization in bytes per second (Bps)
-    in_bandwidth = in_octets_diff / 15
-    out_bandwidth = out_octets_diff / 15
+    # Calculate interface traffic and utilisation in a 30s interval in Bytes per second (Bps)
+    in_traffic = in_octets_diff / interval
+    out_traffic = out_octets_diff / interval
+    total_traffic = total / interval
+    in_utilisation = (in_octets_diff / (interval * speed)) * 100
+    out_utilisation = (out_octets_diff / (interval * speed)) * 100
 
-    return [round(in_bandwidth, 2), round(out_bandwidth, 2)]
-
-
-def bandwidth(router, query, previous_data):
-    previous_stats = []
-    for table in previous_data:
-        for key in table.records:
-            in_octets = key['in_octets']
-            out_octets = key['out_octets']
-            previous_stats.append([in_octets, out_octets])
-    time.sleep(15)
-    current_data = router.get_interface_stats_from_influxdb(query)
-    current_stats = []
-    for table in current_data:
-        for key in table.records:
-            in_octets = key['in_octets']
-            out_octets = key['out_octets']
-            current_stats.append([in_octets, out_octets])
-    results = []
-    x = 0
-    for table in previous_data:
-        for key in table.records:
-            band = calculate_bandwidth([previous_stats[x], current_stats[x]])
-            name = key['name']
-            interface_stats = {'name': name,
-                               'stats': {
-                                   'in_bandwidth': band[0],
-                                   'out_bandwidth': band[1]}}
-            results.append(interface_stats)
-            x = x + 1
-
-    router.write_to_influxdb('fault_management_stats', 'name', results)
+    return [round(in_traffic, 2), round(out_traffic, 2), round(total_traffic, 2),
+            round(in_utilisation, 2), round(out_utilisation, 2)]
 
 
 def get_fault_management_statistics():
@@ -140,13 +132,16 @@ def get_fault_management_statistics():
                         "my-org", "network")
 
         # Builds and makes a Query for the interface admin status data from InfluxDB
-        query = make_query()
-        interface_data = router.get_interface_stats_from_influxdb(query)
-        #bit_error_rate(router, interface_data)
-        #link_flap(router, interface_data)
-        #bandwidth(router, query, interface_data)
-        #traffic_volume(router, interface_data)
-        interface_utilisation(router, interface_data)
+        old_query = make_query()
+        old_data = router.get_interface_stats_from_influxdb(old_query)
+        time.sleep(interval)
+        new_query = make_query()
+        new_data = router.get_interface_stats_from_influxdb(new_query)
+
+        rate(router, new_data)
+        link_flap(router, new_data)
+        traffic(router, new_data, old_data)
+
     except Exception as e:
         print("Error:", e)
 
