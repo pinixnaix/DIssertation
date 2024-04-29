@@ -14,6 +14,18 @@ class Router:
         self.influxdb_org = org
         self.influxdb_bucket = bucket
 
+    def run_to_startup(self):
+        try:
+            with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
+                                 hostkey_verify=False) as m:
+                result = m.copy_config(source='running', target='startup')
+                if result.ok:
+                    print("Running configuration saved to startup configuration successfully.")
+                else:
+                    print("Failed to save running configuration to startup configuration.")
+        except Exception as e:
+            print("Error:", e)
+
     def backup_configuration(self):
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,

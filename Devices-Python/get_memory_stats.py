@@ -1,4 +1,5 @@
 import time
+
 from router_manager import Router
 from xml.etree import ElementTree as ET
 
@@ -31,14 +32,9 @@ def get_memory_statistics():
         router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
                         "my-super-secret-auth-token",
                         "my-org", "network")
-        data = '''
-                             <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-                                    <memory-statistics xmlns="http://cisco.com/ns/yang/Cisco-IOS-XE-memory-oper"/>
-                             </filter>
-                                   '''
-        # retrieves the statistics from the router with the filter: data
-        response = router.get_stats(data)
-        
+
+        # Send NETCONF <get> operation with the filter
+        response = router.get_memory_stats()
         result = parse(ET.fromstring(response.data_xml))
         # Parse the XML response and send to influxdb
         router.write_to_influxdb('memory_stats', 'name', result)
