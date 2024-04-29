@@ -52,7 +52,7 @@ def generate_udp_traffic(destination_ips, interval=1, src_port=None, dst_port=No
 def run():
     
     # Read destination IPs from environment variable
-    destination_ips= os.environ.get("DESTINATION_IPS")
+    destination_ips= "10.10.20.48"
 
 
     # Set the interval between packets in seconds

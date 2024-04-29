@@ -18,6 +18,9 @@ def get_acl():
                 <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
                     <acl xmlns="http://openconfig.net/yang/acl"/>
                 </filter>
+                  <filter>
+    <access-lists xmlns="http://cisco.com/ns/yang/Cisco-IOS-XE-acl-oper"/>
+  </filter>
             '''
 
             # Send NETCONF <get> operation with the filter

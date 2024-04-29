@@ -42,9 +42,13 @@ def get_interface_statistics():
         router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
                         "my-super-secret-auth-token",
                         "my-org", "network")
-
+        data = '''
+                                    <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
+                                        <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
+                                    </filter>
+                                '''
         # Send NETCONF <get> operation with the filter
-        response = router.get_interface_stats()
+        response = router.get_stats(data)
 
         result = parse(ET.fromstring(response.data_xml))
         # Parse the XML response and send to influxdb

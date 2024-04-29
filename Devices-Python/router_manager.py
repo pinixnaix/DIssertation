@@ -19,33 +19,29 @@ class Router:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
                 configuration = m.get_config(source='running').data_xml
-                print("Router configuration retrieved successfully.")
+                print("Router running configuration retrieved successfully.")
             return configuration
         except Exception as e:
             print("Error:", e)
 
-    def get_interface_stats(self):
+    def get_stats(self, data):
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
-                data = '''
-                            <filter xmlns="urn:ietf:params:xml:ns:netconf:base:1.0">
-                                <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
-                            </filter>
-                        '''
+
                 response = m.get(data)
-                print("Router interface statistics retrieved successfully.")
+                print("Router statistics retrieved successfully.")
             return response
         except Exception as e:
             print("Error:", e)
 
-    def edit_interface(self, config):
+    def edit_router(self, config):
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
 
                 response = m.edit_config(target="running", config=config)
-
+                print("Router modifications done successfully.")
             return response
         except Exception as e:
             print("Error:", e)
@@ -84,7 +80,7 @@ class Router:
 
             # Query the most recent router configuration from InfluxDB
             query = f'from(bucket: "{self.influxdb_bucket}") |> range(start: -1h) |> ' \
-                    f'filter(fn: (r) => r["host"] == "10.10.20.48") |> last()'
+                    f'filter(fn: (r) => r["host"] == "{self.ip}") |> last()'
             # Execute the Flux query
             tables = query_api.query(query, org=self.influxdb_org)
 

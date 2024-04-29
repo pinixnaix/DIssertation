@@ -74,8 +74,8 @@ def rate(router, data):
                 discard_rate = (int(total_discards) / int(total)) * 100
             result.append({'name': name,
                            'stats': {
-                               'error_rate': error_rate,
-                               'discard_rate': discard_rate}})
+                               'error_rate': float(error_rate),
+                               'discard_rate': float(discard_rate)}})
     router.write_to_influxdb('fault_management_stats', 'name', result)
 
 
@@ -99,12 +99,16 @@ def link_flap(router, data):
                      |> count()
                      '''
             stat = router.get_interface_stats_from_influxdb(query)
+
             if len(stat) == 0:
-                stat = 0
+                counter = 0
+            else:
+                for record in stat:
+                    counter = record.records[0]['_value']
 
             result.append({'name': name,
                            'stats': {
-                               'link_stat': stat}})
+                               'link_flap': counter}})
     router.write_to_influxdb('fault_management_stats', 'name', result)
 
 
@@ -121,8 +125,7 @@ def calculate_traffic(stats, speed):
     in_utilisation = (in_octets_diff / (interval * speed)) * 100
     out_utilisation = (out_octets_diff / (interval * speed)) * 100
 
-    return [round(in_traffic, 2), round(out_traffic, 2), round(total_traffic, 2),
-            round(in_utilisation, 2), round(out_utilisation, 2)]
+    return [in_traffic, out_traffic, total_traffic, in_utilisation, out_utilisation]
 
 
 def get_fault_management_statistics():
@@ -148,5 +151,6 @@ def get_fault_management_statistics():
 
 if __name__ == "__main__":
     # Execute the function to retrieve interface statistics
-
-    get_fault_management_statistics()
+    while True:
+        get_fault_management_statistics()
+        time.sleep(30)
