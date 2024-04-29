@@ -153,4 +153,4 @@ if __name__ == "__main__":
     # Execute the function to retrieve interface statistics
     while True:
         get_fault_management_statistics()
-        time.sleep(30)
+        time.sleep(interval)

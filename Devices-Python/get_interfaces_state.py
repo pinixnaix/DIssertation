@@ -4,7 +4,7 @@ import time
 
 
 def parse(stats):
-    # Store interface statistics in a dictionary
+    # parses the xml data and Stores interface statistics in a dictionary
     results = []
     for interface in stats.findall('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}interface'):
         name = interface.find('{urn:ietf:params:xml:ns:yang:ietf-interfaces}name').text
@@ -47,11 +47,11 @@ def get_interface_statistics():
                                         <interfaces-state xmlns="urn:ietf:params:xml:ns:yang:ietf-interfaces"/>
                                     </filter>
                                 '''
-        # Send NETCONF <get> operation with the filter
+        # retrieves the statistics from the router with the filter: data
         response = router.get_stats(data)
 
         result = parse(ET.fromstring(response.data_xml))
-        # Parse the XML response and send to influxdb
+        # Parse the XML response and send the result to influxdb
         router.write_to_influxdb('interface_stats', 'name', result)
 
     except Exception as e:
@@ -59,7 +59,7 @@ def get_interface_statistics():
 
 
 if __name__ == "__main__":
-    # Execute the function to retrieve interface statistics
+    # Execute the function to retrieve interface statistics every 5 seconds
     while True:
         get_interface_statistics()
         time.sleep(5)
