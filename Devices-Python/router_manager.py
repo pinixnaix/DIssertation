@@ -61,13 +61,19 @@ class Router:
                                                     token=self.influxdb_token,
                                                     org=self.influxdb_org)
             write_api = client.write_api(write_options=SYNCHRONOUS)
-            for item in data:
+            if measurement == "router_config":
                 point = influxdb_client.Point(measurement)
                 point.tag('host', self.ip)
-                point.tag(tag, item["name"])
-                for key, value in item["stats"].items():
-                    point.field(key, value)
+                point.field(tag, data)
                 write_api.write(bucket=self.influxdb_bucket, org=self.influxdb_org, record=point)
+            else:
+                for item in data:
+                    point = influxdb_client.Point(measurement)
+                    point.tag('host', self.ip)
+                    point.tag(tag, item["name"])
+                    for key, value in item["stats"].items():
+                        point.field(key, value)
+                    write_api.write(bucket=self.influxdb_bucket, org=self.influxdb_org, record=point)
             print(f"Router data sent to InfluxDB successfully.")
             client.close()
         except Exception as e:
@@ -79,8 +85,14 @@ class Router:
             query_api = client.query_api()
 
             # Query the most recent router configuration from InfluxDB
-            query = f'from(bucket: "{self.influxdb_bucket}") |> range(start: -1h) |> ' \
-                    f'filter(fn: (r) => r["host"] == "{self.ip}") |> last()'
+            query = f"""
+                        from(bucket: "network")
+              |> range(start: -1h)
+              |> filter(fn: (r) => r["_measurement"] == "router_config")
+              |> filter(fn: (r) => r["host"] == "{self.ip}")
+              |> filter(fn: (r) => r["_field"] == "running-config")
+              |> yield(name: "last")
+            """
             # Execute the Flux query
             tables = query_api.query(query, org=self.influxdb_org)
 
