@@ -1,4 +1,4 @@
-from ncclient import manager
+from ncclient import manager, xml_
 import influxdb_client
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -18,8 +18,11 @@ class Router:
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
-                result = m.copy_config(source='running', target='startup')
-                if result.ok:
+                save = """
+                <cisco-ia:save-config xmlns:cisco-ia="http://cisco.com/yang/cisco-ia"/>
+                """
+                reply = m.dispatch(xml_.to_ele(save))
+                if reply.ok:
                     print("Running configuration saved to startup configuration successfully.")
                 else:
                     print("Failed to save running configuration to startup configuration.")
