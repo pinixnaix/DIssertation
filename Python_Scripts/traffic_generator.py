@@ -33,7 +33,7 @@ def generate_tcp_traffic(destination_ips, interval=1, src_port=None, dst_port=No
     """
     for destination_ip in destination_ips:
         # Generate random payload size
-        payload_size = random.randint(1, 2000)
+        payload_size = random.randint(1000, 3000)
         # Generate payload data
         payload = bytes([random.randint(0, 255) for _ in range(payload_size)])
         # Create TCP packet
@@ -56,7 +56,7 @@ def generate_udp_traffic(destination_ips, interval=1, src_port=None, dst_port=No
     """
     for destination_ip in destination_ips:
         # Generate random payload size
-        payload_size = random.randint(1, 2000)
+        payload_size = random.randint(1000, 3000)
         # Generate payload data
         payload = bytes([random.randint(0, 255) for _ in range(payload_size)])
         # Create UDP packet
@@ -99,7 +99,7 @@ if __name__ == "__main__":
     # List of destination IP addresses
     destination_ips = ["10.10.20.48", "10.10.10.38", "10.10.30.38"]
     # Duration of the traffic generation in seconds
-    duration = 60
+    duration = 300
 
     # Run traffic generation
     run_traffic(destination_ips, duration)

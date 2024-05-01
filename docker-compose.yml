@@ -29,8 +29,7 @@ services:
         ports:
           - '9000:3000'
         volumes:
-          - ./grafana/provisioning/:/etc/grafana/provisioning/
-          - ./grafana/dashboards/:/var/lib/grafana/dashboards/
+          - ./grafana/grafana/:/var/lib/grafana/
         restart: unless-stopped
         networks:
           - default
