@@ -1,10 +1,19 @@
-from router_manager import Router
-from xml.etree import ElementTree as ET
-import time
+from router_manager import Router  # Importing Router class from router_manager module
+from xml.etree import ElementTree as ET  # Importing ElementTree as ET for XML parsing
+import time  # Importing time module for time-related operations
 
 
 def parse(stats):
-    # parses the xml data and Stores interface statistics in a dictionary
+    """
+    Parses interface statistics XML and extracts relevant information.
+
+    Args:
+        stats (ElementTree.Element): Element containing interface statistics XML data.
+
+    Returns:
+        list: List of dictionaries containing interface statistics.
+    """
+    # Store interface statistics in a list of dictionaries
     results = []
     for interface in stats.findall('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}interface'):
         name = interface.find('{urn:ietf:params:xml:ns:yang:ietf-interfaces}name').text
@@ -23,21 +32,34 @@ def parse(stats):
         out_broadcast_pkts = interface.find('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}out-broadcast-pkts').text
         out_multicast_pkts = interface.find('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}out-multicast-pkts').text
         out_discards = interface.find('.//{urn:ietf:params:xml:ns:yang:ietf-interfaces}out-discards').text
+
+        # Creating dictionary for each interface statistics and appending to results list
         interface_stats = {'name': name,
                            'stats': {
                                'admin_status': float(1) if admin_status == 'up' else float(0),
                                'oper_status': 1 if oper_status == 'up' else 0,
-                               'speed': float(speed), 'in_errors': float(in_errors), 'in_octets': float(in_octets),
-                               'in_unicast_pkts': float(in_unicast_pkts), 'in_broadcast_pkts': float(in_broadcast_pkts),
-                               'in_multicast_pkts': float(in_multicast_pkts), 'in_discards': float(in_discards),
-                               'out_errors': float(out_errors), 'out_octets': float(out_octets),
-                               'out_unicast_pkts': float(out_unicast_pkts), 'out_broadcast_pkts': float(out_broadcast_pkts),
-                               'out_multicast_pkts': float(out_multicast_pkts), 'out_discards': float(out_discards)}}
+                               'speed': float(speed),
+                               'in_errors': float(in_errors),
+                               'in_octets': float(in_octets),
+                               'in_unicast_pkts': float(in_unicast_pkts),
+                               'in_broadcast_pkts': float(in_broadcast_pkts),
+                               'in_multicast_pkts': float(in_multicast_pkts),
+                               'in_discards': float(in_discards),
+                               'out_errors': float(out_errors),
+                               'out_octets': float(out_octets),
+                               'out_unicast_pkts': float(out_unicast_pkts),
+                               'out_broadcast_pkts': float(out_broadcast_pkts),
+                               'out_multicast_pkts': float(out_multicast_pkts),
+                               'out_discards': float(out_discards)}
+                           }
         results.append(interface_stats)
     return results
 
 
 def get_interface_statistics():
+    """
+    Retrieves interface statistics from the router and sends them to InfluxDB.
+    """
     try:
         router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
                         "my-super-secret-auth-token",
@@ -62,4 +84,4 @@ if __name__ == "__main__":
     # Execute the function to retrieve interface statistics every 5 seconds
     while True:
         get_interface_statistics()
-        time.sleep(5)
+        time.sleep(5)  # Wait for 5 seconds before retrieving data again

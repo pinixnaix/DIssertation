@@ -1,9 +1,18 @@
-import time
-from router_manager import Router
-from xml.etree import ElementTree as ET
+import time  # Importing time module for time-related operations
+from router_manager import Router  # Importing Router class from router_manager module
+from xml.etree import ElementTree as ET  # Importing ElementTree as ET for XML parsing
 
 
 def parse(stats):
+    """
+    Parses CPU statistics XML and extracts relevant information.
+
+    Args:
+        stats (ElementTree.Element): Element containing CPU statistics XML data.
+
+    Returns:
+        list: List of dictionaries containing CPU statistics.
+    """
     # Store cpu statistics in a dictionary
     results = []
     for interface in stats.findall('.//{http://cisco.com/ns/yang/Cisco-IOS-XE-process-cpu-oper}cpu-utilization'):
@@ -23,6 +32,9 @@ def parse(stats):
 
 
 def get_memory_statistics():
+    """
+    Retrieves CPU statistics from the router and sends them to InfluxDB.
+    """
     try:
         router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
                         "my-super-secret-auth-token",
@@ -46,7 +58,7 @@ def get_memory_statistics():
 
 
 if __name__ == "__main__":
-    # Execute the function to retrieve interface statistics
+    # Execute the function to retrieve interface statistics periodically
     while True:
         get_memory_statistics()
-        time.sleep(15)
+        time.sleep(15)  # Wait for 15 seconds before retrieving data again

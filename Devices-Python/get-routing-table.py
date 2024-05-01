@@ -1,5 +1,5 @@
-from ncclient import manager
-from xml.etree import ElementTree as ET
+from ncclient import manager  # Importing manager from ncclient module for NETCONF operations
+from xml.etree import ElementTree as ET  # Importing ElementTree as ET for XML parsing
 
 # Define router connection parameters
 router_ip = '10.10.20.48'
@@ -8,6 +8,12 @@ router_username = 'developer'
 router_password = 'C1sco12345'
 
 def get_routing_table():
+    """
+    Retrieves and displays the IP routing table from the router using NETCONF.
+
+    Returns:
+        None
+    """
     try:
         # Connect to the router using NETCONF
         with manager.connect(host=router_ip, port=router_port, username=router_username, password=router_password, hostkey_verify=False) as m:

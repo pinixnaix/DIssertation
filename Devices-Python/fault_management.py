@@ -1,11 +1,17 @@
-from router_manager import Router
-import time
-from datetime import datetime, timedelta
+from router_manager import Router  # Importing Router class from router_manager module
+import time  # Importing time module for time-related operations
+from datetime import datetime, timedelta  # Importing datetime and timedelta from datetime module
 
-interval = 30
+interval = 30  # Interval for data retrieval in seconds
 
 
 def make_query():
+    """
+    Constructs a Flux query for fetching interface statistics from InfluxDB.
+
+    Returns:
+        str: Flux query string.
+    """
     query = f'''
                 from(bucket: "network")
               |> range(start: -15s)
@@ -18,6 +24,14 @@ def make_query():
 
 
 def traffic(router, new_data, old_data):
+    """
+    Calculates traffic statistics and writes them to InfluxDB.
+
+    Args:
+        router (Router): Router instance for writing data to InfluxDB.
+        new_data (list): List of tables containing new interface statistics data.
+        old_data (list): List of tables containing old interface statistics data.
+    """
     previous, result, recent, counter = [], [], [], 0
     for table in old_data:
         for key in table.records:
@@ -49,6 +63,13 @@ def traffic(router, new_data, old_data):
 
 
 def rate(router, data):
+    """
+    Calculates error and discard rates and writes them to InfluxDB.
+
+    Args:
+        router (Router): Router instance for writing data to InfluxDB.
+        data (list): List of tables containing interface statistics data.
+    """
     result = []
 
     for table in data:
@@ -80,6 +101,13 @@ def rate(router, data):
 
 
 def link_flap(router, data):
+    """
+    Calculates link flap statistics and writes them to InfluxDB.
+
+    Args:
+        router (Router): Router instance for writing data to InfluxDB.
+        data (list): List of tables containing interface statistics data.
+    """
     end_time = datetime.utcnow()
     start_time = end_time - timedelta(minutes=5)
 
@@ -113,7 +141,18 @@ def link_flap(router, data):
 
 
 def calculate_traffic(stats, speed):
-    # Calculate difference in octets for inbound, outbound and total traffic
+    """
+    Calculates traffic statistics.
+
+    Args:
+        stats (list): List containing previous and recent traffic statistics.
+        speed (int): Speed of the interface in bits per second.
+
+    Returns:
+        list: List containing inbound traffic, outbound traffic, total traffic,
+              inbound utilisation, and outbound utilisation.
+    """
+    # Calculate difference in octets for inbound, outbound, and total traffic
     in_octets_diff = int(stats[1][0]) - int(stats[0][0])
     out_octets_diff = int(stats[1][1]) - int(stats[0][1])
     total = int(stats[1][2]) - int(stats[0][2])
@@ -129,6 +168,9 @@ def calculate_traffic(stats, speed):
 
 
 def get_fault_management_statistics():
+    """
+    Retrieves interface statistics periodically and performs analysis.
+    """
     try:
         router = Router("10.10.20.48", 830, "developer", "C1sco12345", "http://localhost:8086",
                         "my-super-secret-auth-token",
@@ -150,7 +192,7 @@ def get_fault_management_statistics():
 
 
 if __name__ == "__main__":
-    # Execute the function to retrieve interface statistics
+    # Execute the function to retrieve interface statistics periodically
     while True:
         get_fault_management_statistics()
-        time.sleep(interval)
+        time.sleep(interval)  # Wait for the specified interval before retrieving data again

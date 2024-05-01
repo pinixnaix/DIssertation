@@ -1,10 +1,23 @@
-from ncclient import manager, xml_
-import influxdb_client
-from influxdb_client.client.write_api import SYNCHRONOUS
+from ncclient import manager, xml_  # Importing ncclient modules for NETCONF operations
+import influxdb_client  # Importing InfluxDB client library
+from influxdb_client.client.write_api import SYNCHRONOUS  # Importing write API for InfluxDB
 
 
 class Router:
     def __init__(self, ip, port, username, password, url, token, org, bucket):
+        """
+        Initialize Router object with connection parameters.
+
+        Args:
+            ip (str): IP address of the router.
+            port (int): Port number for connection.
+            username (str): Username for authentication.
+            password (str): Password for authentication.
+            url (str): URL for InfluxDB connection.
+            token (str): Authentication token for InfluxDB.
+            org (str): Organization name for InfluxDB.
+            bucket (str): Bucket name for InfluxDB.
+        """
         self.ip = ip
         self.port = port
         self.username = username
@@ -15,6 +28,9 @@ class Router:
         self.influxdb_bucket = bucket
 
     def run_to_startup(self):
+        """
+        Save the running configuration to the startup configuration on the router.
+        """
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
@@ -30,6 +46,9 @@ class Router:
             print("Error:", e)
 
     def backup_configuration(self):
+        """
+        Backup the running configuration from the router.
+        """
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
@@ -40,10 +59,18 @@ class Router:
             print("Error:", e)
 
     def get_stats(self, data):
+        """
+        Retrieve statistics from the router.
+
+        Args:
+            data (str): XML filter for retrieving specific statistics.
+
+        Returns:
+            Response: Statistics response from the router.
+        """
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
-
                 response = m.get(data)
                 print("Router statistics retrieved successfully.")
             return response
@@ -51,10 +78,18 @@ class Router:
             print("Error:", e)
 
     def edit_router(self, config):
+        """
+        Edit router configuration.
+
+        Args:
+            config (str): XML configuration string to edit router configuration.
+
+        Returns:
+            Response: Response from the router after editing configuration.
+        """
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
-
                 response = m.edit_config(target="running", config=config)
                 print("Router modifications done successfully.")
             return response
@@ -62,6 +97,12 @@ class Router:
             print("Error:", e)
 
     def rollback_configuration(self, config):
+        """
+        Rollback router configuration to a previous state.
+
+        Args:
+            config (str): XML configuration string for rollback.
+        """
         try:
             with manager.connect(host=self.ip, port=self.port, username=self.username, password=self.password,
                                  hostkey_verify=False) as m:
@@ -71,6 +112,14 @@ class Router:
             print("Error:", e)
 
     def write_to_influxdb(self, measurement, tag, data):
+        """
+        Write data to InfluxDB.
+
+        Args:
+            measurement (str): Name of the measurement.
+            tag (str): Tag name.
+            data (list): Data to be written to InfluxDB.
+        """
         try:
             client = influxdb_client.InfluxDBClient(url=self.influxdb_url,
                                                     token=self.influxdb_token,
@@ -95,6 +144,12 @@ class Router:
             print("Error:", e)
 
     def get_config_from_influxdb(self):
+        """
+        Retrieve router configuration from InfluxDB.
+
+        Returns:
+            str: Router configuration retrieved from database.
+        """
         try:
             client = influxdb_client.InfluxDBClient(url=self.influxdb_url, token=self.influxdb_token)
             query_api = client.query_api()
@@ -122,6 +177,15 @@ class Router:
             print("Error:", e)
 
     def get_interface_stats_from_influxdb(self, query):
+        """
+        Retrieve router interface statistics from InfluxDB.
+
+        Args:
+            query (str): Flux query to retrieve interface statistics.
+
+        Returns:
+            result: Router interface statistics retrieved from database.
+        """
         try:
             client = influxdb_client.InfluxDBClient(url=self.influxdb_url, token=self.influxdb_token)
             query_api = client.query_api()
