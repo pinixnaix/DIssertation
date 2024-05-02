@@ -9,7 +9,33 @@ This repository contains a network management and monitoring system developed us
 - Python installed on your machine
 - Cisco DevNet Sandbox account (https://developer.cisco.com/)
 - Access to reserve a Cisco DevNet Sandbox IOS XE on a Catalyst 8000V Edge Software-Defined WAN (SD-WAN) router
+- VPN client (OpenConnect-GUI recommended)
 
 ## Setup Instructions
 1. Clone this repository to your local machine:
+
+git clone https://github.com/pinixnaix/DIssertation.git
+
+2. Navigate to the project directory:
+
+3. Ensure Docker is running on your machine.
+
+4. Reserve a Cisco DevNet Sandbox IOS XE on a Catalyst 8000V Edge SD-WAN router using your Cisco DevNet Sandbox account. Follow the instructions provided by Cisco for reservation.
+
+5. Connect to the Cisco DevNet Sandbox VPN using the OpenConnect-GUI VPN client or any compatible VPN client. This step is necessary to access the reserved sandbox environment.
+
+6. Once the sandbox is reserved and accessible, update the necessary files with the appropriate credentials and IP address of the sandbox router.
+
+7. Update the credentials for the Docker containers (InfluxDB and Grafana) if necessary by modifying the `configuration.env` file and also the Python Scripts 
+
+8. Run the Python scripts to start the system:
+          - 
+
+9. The system should start collecting data, managing configurations, and detecting faults using the NETCONF protocol.
+
+## Usage
+- Once the system is running, you can visualise the data collection, configuration management, and fault detection features.
+- Make any necessary adjustments to the configuration or implementation based on your specific network environment and requirements.
+
+
 
