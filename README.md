@@ -14,7 +14,7 @@ This repository contains a network management and monitoring system developed us
 ## Setup Instructions
 1. Clone this repository to your local machine:
 
-git clone https://github.com/pinixnaix/DIssertation.git
+          git clone https://github.com/pinixnaix/DIssertation.git
 
 2. Navigate to the project directory:
 
