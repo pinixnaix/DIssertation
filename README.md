@@ -16,21 +16,23 @@ This repository contains a network management and monitoring system developed us
 
           git clone https://github.com/pinixnaix/DIssertation.git
 
-2. Navigate to the project directory:
+2. Navigate to the project directory
 
-3. Ensure Docker is running on your machine.
+3. Run the command:
+          docker-compose up -d
+4. Ensure Docker is running on your machine.
 
-4. Reserve a Cisco DevNet Sandbox IOS XE on a Catalyst 8000V Edge SD-WAN router using your Cisco DevNet Sandbox account. Follow the instructions provided by Cisco for reservation.
+5. Reserve a Cisco DevNet Sandbox IOS XE on a Catalyst 8000V Edge SD-WAN router using your Cisco DevNet Sandbox account. Follow the instructions provided by Cisco for reservation.
 
-5. Connect to the Cisco DevNet Sandbox VPN using the OpenConnect-GUI VPN client or any compatible VPN client. This step is necessary to access the reserved sandbox environment.
+6. Connect to the Cisco DevNet Sandbox VPN using the OpenConnect-GUI VPN client or any compatible VPN client. This step is necessary to access the reserved sandbox environment.
 
-6. Once the sandbox is reserved and accessible, update the necessary files with the appropriate credentials and IP address of the sandbox router.
+7. Once the sandbox is reserved and accessible, update the necessary files with the appropriate credentials and IP address of the sandbox router.
 
-7. Update the credentials for the Docker containers (InfluxDB and Grafana) if necessary by modifying the `configuration.env` file and also the Python Scripts.
+8. Update the credentials for the Docker containers (InfluxDB and Grafana) if necessary by modifying the `configuration.env` file and also the Python Scripts.
 
-8. Update the Grafana contact points for the notification for another of your choice.  
+9. Update the Grafana contact points for the notification for another of your choice.  
 
-9. Run the Python scripts to start the system:
+10. Run the Python scripts to start the system:
    - `get_interfaces_state.py`: This script retrieves the state of network interfaces.
    - `get_cpu_usage_processes.py`: This script collects CPU usage and running processes data.
    - `fault_management.py`: This script handles fault management, including proactive fault detection.
@@ -40,7 +42,7 @@ This repository contains a network management and monitoring system developed us
 
           python get_interfaces_state.py
 
-10. The system should start collecting data, managing configurations, and detecting faults using the NETCONF protocol.
+11. The system should start collecting data, managing configurations, and detecting faults using the NETCONF protocol.
 
 ## Usage
 - Once the system is running:
