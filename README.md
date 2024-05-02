@@ -43,7 +43,8 @@ This repository contains a network management and monitoring system developed us
 10. The system should start collecting data, managing configurations, and detecting faults using the NETCONF protocol.
 
 ## Usage
-- Once the system is running, you can visualise the data collection, configuration management, and fault detection features.
+- Once the system is running, To visualize the data collected by these scripts, access Grafana using the following link:
+  [Grafana Dashboard](http://localhost:3000)
 - Make any necessary adjustments to the configuration or implementation based on your specific network environment and requirements.
 
 
