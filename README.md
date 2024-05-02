@@ -31,10 +31,14 @@ This repository contains a network management and monitoring system developed us
 8. Update the Grafana contact points for the notification for another of your choice.  
 
 9. Run the Python scripts to start the system:
-          - get_interfaces_state.py
-          - get_cpu_usage_processes.py
-          - fault_management.py
-          - get_memory_stats.py
+   - `get_interfaces_state.py`: This script retrieves the state of network interfaces.
+   - `get_cpu_usage_processes.py`: This script collects CPU usage and running processes data.
+   - `fault_management.py`: This script handles fault management, including proactive fault detection.
+   - `get_memory_stats.py`: This script gathers memory statistics from the network devices.
+
+   To run a script, use the following command:
+
+          python get_interfaces_state.py
 
 10. The system should start collecting data, managing configurations, and detecting faults using the NETCONF protocol.
 
