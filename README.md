@@ -18,8 +18,10 @@ This repository contains a network management and monitoring system developed us
 
 2. Navigate to the project directory
 
-3. Run the command:
+3. Ensure that the Docker containers for InfluxDB and Grafana are running. Use the following command to start the Docker containers:
+
           docker-compose up -d
+
 4. Ensure Docker is running on your machine.
 
 5. Reserve a Cisco DevNet Sandbox IOS XE on a Catalyst 8000V Edge SD-WAN router using your Cisco DevNet Sandbox account. Follow the instructions provided by Cisco for reservation.
