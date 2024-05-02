@@ -26,12 +26,17 @@ git clone https://github.com/pinixnaix/DIssertation.git
 
 6. Once the sandbox is reserved and accessible, update the necessary files with the appropriate credentials and IP address of the sandbox router.
 
-7. Update the credentials for the Docker containers (InfluxDB and Grafana) if necessary by modifying the `configuration.env` file and also the Python Scripts 
+7. Update the credentials for the Docker containers (InfluxDB and Grafana) if necessary by modifying the `configuration.env` file and also the Python Scripts.
 
-8. Run the Python scripts to start the system:
-          - 
+8. Update the Grafana contact points for the notification for another of your choice.  
 
-9. The system should start collecting data, managing configurations, and detecting faults using the NETCONF protocol.
+9. Run the Python scripts to start the system:
+          - get_interfaces_state.py
+          - get_cpu_usage_processes.py
+          - fault_management.py
+          - get_memory_stats.py
+
+10. The system should start collecting data, managing configurations, and detecting faults using the NETCONF protocol.
 
 ## Usage
 - Once the system is running, you can visualise the data collection, configuration management, and fault detection features.
