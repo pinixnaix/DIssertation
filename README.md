@@ -1,7 +1,7 @@
 # Network Management and Monitoring System using NETCONF
 
 ## Overview
-This repository contains a network management and monitoring system developed using the NETCONF protocol. The system was developed for a Dissertaion and aims to provide efficient data collection, configuration management, and fault detection capabilities within network environments.
+This repository contains a network management and monitoring system developed using the NETCONF protocol. The system was developed for a Dissertation and aims to provide efficient data collection, configuration management, and fault detection capabilities within network environments.
 
 ## Requirements
 - NETCONF protocol knowledge
